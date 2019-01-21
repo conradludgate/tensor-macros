@@ -6,7 +6,7 @@ Compile time optimised tensor library
 
 ```rust
 #[macro_use]
-extern crate tensor-macros;
+extern crate tensor_macros;
 
 tensor!(T324 3x2x4)
 matrix!(M24 2x4)   // Alias for tensor!(M24 2x4) but only allows two dimensions
