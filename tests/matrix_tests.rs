@@ -2,7 +2,7 @@
 extern crate tensor_macros;
 use tensor_macros::Tensor;
 
-tensor!(T324 3 2 4);
+tensor!(T324 3 x 2 x 4);
 
 #[test]
 fn types_to_string() {
