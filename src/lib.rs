@@ -1,3 +1,5 @@
+#![feature(try_from)]
+
 pub trait Tensor {
     const SIZE: usize;
     const NDIM: usize;
@@ -18,6 +20,7 @@ pub trait RowVector {
     const ROWS: usize;
 }
 
+#[derive(Debug, PartialEq)]
 pub enum TensorError {
     Size,
 }
@@ -47,9 +50,60 @@ macro_rules! make_tensor {
 			}
 		}
 
-		impl<T> Default for $name<T> where T: Default, T: Copy {
+		impl<T: PartialEq> PartialEq for $name<T> {
+			fn eq(&self, other: &Self) -> bool {
+				for (p, q) in self.0.iter().zip(other.0.iter()) {
+					if p != q {
+						return false;
+					}
+				}
+
+				true
+			}
+		}
+
+		impl<T: std::fmt::Debug> std::fmt::Debug for $name<T> where $name<T>: Tensor {
+			fn fmt(&self, f:  &mut std::fmt::Formatter) -> std::fmt::Result {
+				for i in self.0.iter() {
+					write!(f, "{:?} ", i)?
+				}
+
+				Ok(())
+			}
+
+		}
+
+		impl<T: Default + Copy> Default for $name<T> {
 			fn default() -> Self {
 				$name::<T>([Default::default(); 1 $( * $dim )*])
+			}
+		}
+
+		impl<T: Default + Copy> std::convert::TryFrom<&[T]> for $name<T> {
+			type Error = TensorError;
+
+			fn try_from(v: &[T]) -> Result<Self, Self::Error> {
+				if v.len() < 1 $( * $dim )* {
+					Err(TensorError::Size)
+				} else {
+					let mut a: [T; 1 $( * $dim )*] = [Default::default(); 1 $( * $dim )*];
+					a.copy_from_slice(&v[..1 $( * $dim )*]);
+					Ok($name::<T>(a))
+				}
+			}
+		}
+
+		impl<T: Default + Copy> std::convert::TryFrom<Vec<T>> for $name<T> {
+			type Error = TensorError;
+
+			fn try_from(v: Vec<T>) -> Result<Self, Self::Error> {
+				if v.len() < 1 $( * $dim )* {
+					Err(TensorError::Size)
+				} else {
+					let mut a: [T; 1 $( * $dim )*] = [Default::default(); 1 $( * $dim )*];
+					a.copy_from_slice(&v[..1 $( * $dim )*]);
+					Ok($name::<T>(a))
+				}
 			}
 		}
 	};
@@ -64,6 +118,7 @@ macro_rules! make_tensor {
 /// # Example
 ///
 /// ```rust
+/// #![feature(try_from)]
 /// use tensor_macros::*;
 /// tensor!(M23 2 x 3);
 /// let m23: M23<f64> = Default::default();
