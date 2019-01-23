@@ -3,6 +3,7 @@
 Compile time optimised tensor library
 
 [![Crates.io][crates-badge]][crates-url]
+[![Docs][docs-badge]][docs-url]
 [![MIT licensed][mit-badge]][mit-url]
 [![Build Status][pipeline-badge]][pipeline-url]
 
@@ -12,5 +13,5 @@ Compile time optimised tensor library
 [mit-url]: LICENSE
 [pipeline-badge]: https://img.shields.io/gitlab/pipeline/oon/tensor-macros.svg?gitlab_url=https%3A%2F%2Flab.elm.sh
 [pipeline-url]: https://lab.elm.sh/oon/tensor-macros/pipelines
-
-[API Docs](https://docs.rs/tensor-macros)
+[docs-badge]: https://docs.rs/tensor-macros/badge.svg
+[docs-url]: https://docs.rs/tensor-macros
