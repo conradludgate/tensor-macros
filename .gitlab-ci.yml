@@ -1,5 +1,9 @@
 image: "rust:latest"
 
+before_script:
+  - rustup install nightly
+  - rustup default nightly
+
 test:cargo:
   script:
   - rustc --version && cargo --version      # Print version info for debugging

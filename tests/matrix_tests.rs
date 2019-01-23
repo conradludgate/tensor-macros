@@ -6,12 +6,14 @@ use std::convert::TryFrom;
 use tensor_macros::Tensor;
 use tensor_macros::TensorError;
 
-tensor!(T324 3 x 2 x 4);
+tensor!(T324: 3 x 2 x 4);
 
 #[test]
 fn dims() {
+    assert_eq!(T324::<u8>::dims(), vec!(3, 2, 4));
+
     let t324: T324<f64> = Default::default();
-    assert_eq!(t324.dims(), vec!(3, 2, 4));
+    assert_eq!(t324.get_dims(), vec!(3, 2, 4));
 }
 
 #[test]

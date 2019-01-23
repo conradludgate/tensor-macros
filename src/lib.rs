@@ -41,6 +41,19 @@ macro_rules! sum {
 }
 
 #[macro_export]
+/// Generate consecutive pairs from a list of inputs
+///
+/// Used internally by other macros.
+/// Takes the first two values,
+/// adds them both to the end and discards the first one
+///
+/// # Example
+///
+/// ```rust
+/// use tensor_macros::pairs;
+/// let v = pairs!(1, 2, 3, 4, 5);
+/// assert_eq!(v, ((1, 2), (2, 3), (3, 4), (4, 5)));
+/// ```
 macro_rules! pairs {
 	($_1:literal, $_2:literal $(,$tail:literal)*) => {
 		pairs!($_2 $(,$tail)*; $_1, $_2);
@@ -152,14 +165,16 @@ macro_rules! make_tensor {
 /// #![feature(try_from)]
 /// use tensor_macros::*;
 ///
-/// tensor!(M23 2 x 3);
+/// tensor!(M23: 2 x 3);
+///
+/// assert_eq!(M23::<f64>::dims(), vec!(2, 3));
 ///
 /// let m23: M23<f64> = Default::default();
-/// assert_eq!(m23.dims(), vec!(2, 3));
+/// assert_eq!(m23.get_dims(), vec!(2, 3));
 /// ```
 #[macro_export]
 macro_rules! tensor {
-	($name:ident $dim:literal) => {
+	($name:ident: $dim:literal) => {
 		make_tensor!($name $dim);
 
 		impl<T> Vector for $name<T> {
@@ -167,7 +182,7 @@ macro_rules! tensor {
 		}
 	};
 
-	($name:ident row $dim:literal) => {
+	($name:ident: row $dim:literal) => {
 		make_tensor!($name $dim);
 
 		impl<T> RowVector for $name<T> {
@@ -175,7 +190,7 @@ macro_rules! tensor {
 		}
 	};
 
-	($name:ident $dim1:literal x $dim2:literal) => {
+	($name:ident: $dim1:literal x $dim2:literal) => {
 		make_tensor!($name $dim1 x $dim2);
 
 		impl<T> Matrix for $name<T> {
@@ -184,7 +199,7 @@ macro_rules! tensor {
 		}
 	};
 
-	($name:ident $($dim:literal)x+ ) => (
+	($name:ident: $($dim:literal)x+ ) => (
 		make_tensor!($name $($dim) x *);
 	)
 }
@@ -192,27 +207,27 @@ macro_rules! tensor {
 #[cfg(test)]
 mod tests {
     use super::*;
-    tensor!(T2345 2 x 3 x 4 x 5);
+    tensor!(T2345: 2 x 3 x 4 x 5);
     #[test]
     fn tensor_dims() {
         assert_eq!(T2345::<u8>::SIZE, 2 * 3 * 4 * 5);
         assert_eq!(T2345::<u8>::NDIM, 4);
     }
 
-    tensor!(M23 2 x 3);
+    tensor!(M23: 2 x 3);
     #[test]
     fn matrix_dims() {
         assert_eq!(M23::<u8>::ROWS, 2);
         assert_eq!(M23::<u8>::COLS, 3);
     }
 
-    tensor!(V4 4);
+    tensor!(V4: 4);
     #[test]
     fn col_vector_size() {
         assert_eq!(V4::<u8>::COLS, 4);
     }
 
-    tensor!(V2 row 2);
+    tensor!(V2: row 2);
     #[test]
     fn row_vector_size() {
         assert_eq!(V2::<u8>::ROWS, 2);
