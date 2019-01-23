@@ -2,38 +2,15 @@
 
 Compile time optimised tensor library
 
-## Examples
+[![Crates.io][crates-badge]][crates-url]
+[![MIT licensed][mit-badge]][mit-url]
+[![Build Status][pipeline-badge]][pipeline-url]
 
-```rust
-#[macro_use]
-extern crate tensor_macros;
+[crates-badge]: https://img.shields.io/crates/v/tensor-macros.svg
+[crates-url]: https://crates.io/crates/tensor-macros
+[mit-badge]: https://img.shields.io/crates/l/tensor-macros.svg
+[mit-url]: LICENSE
+[pipeline-badge]: https://img.shields.io/gitlab/pipeline/oon/tensor-macros.svg?gitlab_url=https%3A%2F%2Flab.elm.sh
+[pipeline-url]: https://lab.elm.sh/oon/tensor-macros/pipelines
 
-tensor!(T324 3x2x4)
-matrix!(M24 2x4)   // Alias for tensor!(M24 2x4) but only allows two dimensions
-matrix!(M22 2x2)
-vector!(V3 3)      // Alias for tensor!(V3 3) but only allows one dimension
-
-dot!(T324 * M24 -> V3)
-dot!(M22 * M24 -> M24)
-
-// Will not compile
-// dot!(M24 * M22 -> M22)
-
-fn main() {
-    let m22: M22 = vec![
-        1, 2, 
-        3, 4,
-    ];
-        
-    let m24: M24 = vec![
-        1, 2, 3, 4,
-        5, 6, 7, 8,
-    ];
-    
-    assert_eq!(m22 * m24, vec![
-        11, 14, 17, 20,
-        23, 30, 37, 44
-    ]);
-}
-
-```
+[API Docs](https://docs.rs/tensor-macros)
