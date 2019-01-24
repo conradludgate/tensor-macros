@@ -40,6 +40,12 @@ macro_rules! sum {
 	($head:expr, $($tail:expr),+) => (1 + sum!($($tail),*));
 }
 
+// macro_rules! index_type {
+// 	(; $($ty:ty),*) => (($($ty),*));
+// 	($head:expr; $($ty:ty),*) => (index_type!(; $($ty,)* usize));
+// 	($head:expr, $($tail:expr),+; $($ty:ty),*) => (index_type!($($tail),*; $($ty,)* usize));
+// }
+
 #[macro_export]
 /// Generate consecutive pairs from a list of inputs
 ///
@@ -150,7 +156,57 @@ macro_rules! make_tensor {
 				}
 			}
 		}
+
+		make_index_fn!($name; $($dim),*);
+
+		// impl<T> std::ops::Index<index_type!($($dim),*;)> for $name<T> {
+		// 	type Output = T;
+
+		// 	fn index(&self, i: index_type!($($dim),*;)) -> Self::Output {
+		// 		// ((i * Y) + j) * Z + k
+		// 	}
+		// }
 	};
+}
+
+#[macro_export]
+macro_rules! make_index_fn {
+	($name:ident; $dim:literal) => {
+		impl<T> std::ops::Index<usize> for $name<T> {
+			type Output = T;
+
+			fn index(&self, i: usize) -> &Self::Output {
+				&self.0[i]
+			}
+		}
+	};
+
+	($name:ident; $($dims:literal),*) => {
+		make_index_fn!($name; $($dims),*;;;);
+	};
+
+	($name:ident; $dim:literal $(,$dims:literal)*; $($i:ident),*; $($t:ty),*; $($dims_bk:literal),*) => {
+		make_index_fn!($name; $($dims),*; $($i,)* i; $($t,)* usize; $($dims_bk,)* $dim);
+	};
+	($name:ident; ; $($i:ident),*; $($t:ty),*; $($dims:literal),*) => {
+		impl<T> std::ops::Index<( $($t),* )> for $name<T> {
+			type Output = T;
+
+			fn index(&self, ( $($i),* ): ( $($t),* )) -> &Self::Output {
+				&self.0[
+					make_index_val!($($dims),*; $($i),*)
+				]
+			}
+		}
+	};
+}
+
+#[macro_export]
+macro_rules! make_index_val {
+	($dim:literal $(,$dims:literal)*; $i:expr $(,$is:expr)* ) => (
+		$i * mul!($($dims),*) + make_index_val!($($dims),*; $($is),*)
+	);
+	(;) => (0)
 }
 
 /// Generates a tensor type
@@ -238,4 +294,33 @@ mod tests {
         let v = pairs!(1, 2, 3, 4, 5);
         assert_eq!(v, ((1, 2), (2, 3), (3, 4), (4, 5)));
     }
+
+    // #[test]
+    // fn loops() {
+    //     make_loop!(4, 2, 3;);
+    // }
 }
+
+// macro_rules! dot {
+// 	($dim:literal $(, $dims:literal)*; $($x:ident),*) => {
+// 		for i in 0..$dim {
+// 			dot!($($dims),*; $($x,)* i);
+// 		}
+// 	};
+
+// 	(; $($x:ident),*) => {
+// 		println!("{:?}", ( $($x),* ));
+// 	}
+// }
+
+// tensor!(T243: 2 x 4 x 3);
+// tensor!(M3: 3 x 3);
+
+// use std::ops::Mul;
+
+// impl<T> Mul<M3<T>> for T243<T> {
+//     type Output = T243<T>;
+
+//     fn mul(self, rhs: M3<T>) -> Self::Output {}
+// }
+// // fn dot()
