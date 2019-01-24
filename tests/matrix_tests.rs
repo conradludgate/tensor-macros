@@ -39,4 +39,5 @@ fn index() {
     assert_eq!(t324[(0, 0, 0)], 0);
     assert_eq!(t324[(1, 1, 1)], 13);
     assert_eq!(t324[(2, 1, 3)], 23);
+    assert_eq!(t324[15], 15);
 }

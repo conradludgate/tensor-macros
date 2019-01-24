@@ -182,6 +182,14 @@ macro_rules! make_index_fn {
 	};
 
 	($name:ident; $($dims:literal),*) => {
+		impl<T> std::ops::Index<usize> for $name<T> {
+			type Output = T;
+
+			fn index(&self, i: usize) -> &Self::Output {
+				&self.0[i]
+			}
+		}
+
 		make_index_fn!($name; $($dims),*;;;);
 	};
 
