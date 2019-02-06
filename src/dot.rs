@@ -1,4 +1,40 @@
 #[macro_export]
+/// Creates a tensor dot product function
+///
+/// # Example
+///
+/// ```rust
+
+/// #![feature(try_from)]
+///
+/// #[macro_use]
+/// use tensor_macros::*;
+/// use tensor_macros::tensor::*;
+///
+/// tensor!(T243: 2 x 4 x 3);
+/// tensor!(M43: 4 x 3 x 1);
+/// tensor!(V2: 2 x 1);
+///
+/// dot!(T243: 2 x 4 x 3 * M43: 4 x 3 x 1 -> V2: 2 x 1);
+///
+/// let l = T243([
+///     0, 1, 2, 3,
+///     4, 5, 6, 7,
+///     
+///     8, 9, 10, 11,
+///     12, 13, 14, 15,
+///
+///     16, 17, 18, 19,
+///     20, 21, 22, 23,
+/// ]);
+/// let r = M43([
+///     0, 1, 2,
+///     3, 4, 5,
+///     6, 7, 8,
+///     9, 10, 11
+/// ]);
+/// assert_eq!(l * r, V2([121, 253]));
+/// ```
 macro_rules! dot {
     ($lhs:ident: $($l_dim:literal)x+ * $rhs:ident: $($r_dim:literal)x+ -> $out:ident: $($o_dim:literal)x+) => {
         impl<T: Default + Copy + std::ops::Mul> std::ops::Mul<$rhs<T>> for $lhs<T>
