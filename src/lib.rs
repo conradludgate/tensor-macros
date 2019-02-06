@@ -18,13 +18,15 @@ pub mod dot;
 #[cfg(test)]
 mod tests {
     use crate::tensor::*;
+    use std::ops::Add;
+    use std::ops::AddAssign;
     tensor!(T243: 2 x 4 x 3);
     tensor!(M43: 4 x 3 x 1);
     tensor!(V2: 2 x 1);
 
     dot!(T243: 2 x 4 x 3 * M43: 4 x 3 x 1 -> V2: 2 x 1);
 
-    use test::Bencher;
+    use test::{black_box, Bencher};
     #[bench]
     fn tensor_macros_dot_bench(b: &mut Bencher) {
         let l: [f64; 24] = [
@@ -35,6 +37,17 @@ mod tests {
 
         assert_eq!(T243(l) * M43(r), V2([121.0, 253.0]));
 
-        b.iter(|| T243(l) * M43(r));
+        let mut o = V2::<f64>::new();
+
+        b.iter(|| {
+            for _i in 0..100 {
+                o += black_box(T243(l) * M43(r));
+            }
+
+            assert_eq!(o, V2([100.0 * 121.0, 100.0 * 253.0]));
+            o = V2::<f64>::new()
+        });
+
+        assert_eq!(o, V2([0.0, 0.0]));
     }
 }

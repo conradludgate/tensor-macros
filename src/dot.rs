@@ -8,6 +8,7 @@
 /// #![feature(try_from)]
 ///
 /// #[macro_use]
+/// use std::ops::{Add, AddAssign};
 /// use tensor_macros::*;
 /// use tensor_macros::tensor::*;
 ///
@@ -238,6 +239,8 @@ macro_rules! make_dot {
 #[cfg(test)]
 mod tests {
     use crate::tensor::*;
+    use std::ops::Add;
+    use std::ops::AddAssign;
 
     tensor!(T243: 2 x 4 x 3);
     tensor!(M43: 4 x 3 x 1);

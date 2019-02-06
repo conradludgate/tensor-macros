@@ -132,6 +132,26 @@ macro_rules! make_tensor {
 			}
 		}
 
+		impl<T: Default + Copy + Add<Output=T>> Add for $name<T> {
+			type Output = Self;
+
+			fn add(self, other: Self) -> Self::Output {
+				let mut out = Self::new();
+				for i in 0..mul!($($dim),*) {
+					out[i] = self[i] + other[i];
+				}
+				out
+		    }
+		}
+
+		impl<T: Default + Copy + AddAssign> AddAssign for $name<T> {
+			fn add_assign(&mut self, other: Self) {
+				for i in 0..mul!($($dim),*) {
+					self[i] += other[i];
+				}
+		    }
+		}
+
 		make_index_fn!($name; $($dim),*);
 	};
 }
@@ -150,6 +170,7 @@ macro_rules! make_tensor {
 /// #[macro_use]
 /// use tensor_macros::*;
 /// use tensor_macros::tensor::*;
+/// use std::ops::{Add, AddAssign};
 ///
 /// tensor!(M23: 2 x 3);
 ///
@@ -193,6 +214,8 @@ macro_rules! tensor {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::ops::Add;
+    use std::ops::AddAssign;
 
     tensor!(T2345: 2 x 3 x 4 x 5);
     #[test]
