@@ -3,8 +3,7 @@
 #[macro_use]
 extern crate tensor_macros;
 use std::convert::TryFrom;
-use tensor_macros::Tensor;
-use tensor_macros::TensorError;
+use tensor_macros::tensor::{Tensor, TensorError};
 
 tensor!(T324: 3 x 2 x 4);
 
