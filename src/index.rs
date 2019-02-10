@@ -1,7 +1,7 @@
 #[macro_export]
 macro_rules! make_index_fn {
 	($name:ident; $dim:literal) => {
-		impl<T> std::ops::Index<usize> for $name<T> {
+		impl<T: tensor_macros::traits::TensorTrait> std::ops::Index<usize> for $name<T> {
 			type Output = T;
 
 			fn index(&self, i: usize) -> &Self::Output {
@@ -9,7 +9,7 @@ macro_rules! make_index_fn {
 			}
 		}
 
-		impl<T> std::ops::IndexMut<usize> for $name<T> {
+		impl<T: tensor_macros::traits::TensorTrait> std::ops::IndexMut<usize> for $name<T> {
 			fn index_mut(&mut self, i: usize) -> &mut T {
 				&mut self.0[i]
 			}
@@ -17,7 +17,7 @@ macro_rules! make_index_fn {
 	};
 
 	($name:ident; $($dims:literal),*) => {
-		impl<T> std::ops::Index<usize> for $name<T> {
+		impl<T: tensor_macros::traits::TensorTrait> std::ops::Index<usize> for $name<T> {
 			type Output = T;
 
 			fn index(&self, i: usize) -> &Self::Output {
@@ -25,7 +25,7 @@ macro_rules! make_index_fn {
 			}
 		}
 
-		impl<T> std::ops::IndexMut<usize> for $name<T> {
+		impl<T: tensor_macros::traits::TensorTrait> std::ops::IndexMut<usize> for $name<T> {
 			fn index_mut(&mut self, i: usize) -> &mut T {
 				&mut self.0[i]
 			}
@@ -38,7 +38,7 @@ macro_rules! make_index_fn {
 		make_index_fn!($name; $($dims),*; $($i,)* i; $($t,)* usize; $($dims_bk,)* $dim);
 	};
 	($name:ident; ; $($i:ident),*; $($t:ty),*; $($dims:literal),*) => {
-		impl<T> std::ops::Index<( $($t),* )> for $name<T> {
+		impl<T: tensor_macros::traits::TensorTrait> std::ops::Index<( $($t),* )> for $name<T> {
 			type Output = T;
 
 			fn index(&self, ( $($i),* ): ( $($t),* )) -> &Self::Output {
@@ -48,7 +48,7 @@ macro_rules! make_index_fn {
 			}
 		}
 
-		impl<T> std::ops::IndexMut<( $($t),* )> for $name<T> {
+		impl<T: tensor_macros::traits::TensorTrait> std::ops::IndexMut<( $($t),* )> for $name<T> {
 			fn index_mut(&mut self, ( $($i),* ): ( $($t),* )) -> &mut T {
 				&mut self.0[
 					make_index_val!($($dims),*; $($i),*)

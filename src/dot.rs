@@ -8,7 +8,6 @@
 /// #![feature(try_from)]
 ///
 /// #[macro_use]
-/// use std::ops::{Add, AddAssign};
 /// use tensor_macros::*;
 /// use tensor_macros::tensor::*;
 ///
@@ -34,19 +33,20 @@
 ///     6, 7, 8,
 ///     9, 10, 11
 /// ]);
-/// assert_eq!(l * r, V2([121, 253]));
+/// assert_eq!(l * r, V2([506, 1298]));
 /// ```
 macro_rules! dot {
     ($lhs:ident: $($l_dim:literal)x+ * $rhs:ident: $($r_dim:literal)x+ -> $out:ident: $($o_dim:literal)x+) => {
-        impl<T: Default + Copy + std::ops::Mul> std::ops::Mul<$rhs<T>> for $lhs<T>
+        impl<T, U, V> std::ops::Mul<$rhs<U>> for $lhs<T>
         where
-            T: std::ops::Mul,
-            T::Output: Default + Copy,
+            T: tensor_macros::traits::TensorTrait + std::ops::Mul<U, Output=V>,
+            U: tensor_macros::traits::TensorTrait,
+            V: tensor_macros::traits::TensorTrait,
         {
-            type Output = $out<T::Output>;
+            type Output = $out<V>;
 
-            fn mul(self, rhs: M43<T>) -> Self::Output {
-                let mut out = $out::<T::Output>::new();
+            fn mul(self, rhs: M43<U>) -> Self::Output {
+                let mut out = $out::<V>::new();
 
                 // TODO:
                 // Generate Left, Shared and Right from dims
@@ -226,21 +226,19 @@ macro_rules! make_dot {
         }
     };
     ($l:ident, $r:ident, $o:ident; ;;; $($lv:ident),+; $($sv:ident),+; $($rv:ident),*) => {
-        $o[($($lv),* $(,$rv),*)] = $l[($($lv),* $(,$sv)*)] * $r[($($sv,)* $($rv),*)]
+        $o[($($lv),* $(,$rv),*)] += $l[($($lv),* $(,$sv)*)] * $r[($($sv,)* $($rv),*)]
     };
     ($l:ident, $r:ident, $o:ident; ;;;; $($sv:ident),+; $($rv:ident),+) => {
-        $o[($($rv),*)] = $l[($($lv,)* $($sv)*)] * $r[($($sv),* $(,$rv)*)]
+        $o[($($rv),*)] += $l[($($lv,)* $($sv)*)] * $r[($($sv),* $(,$rv)*)]
     };
     ($l:ident, $r:ident, $o:ident; ;;;; $($sv:ident),+;) => {
-        $o = $l[($($lv),* $(,$sv)*)] * $r[($($sv,)* $($rv),*)]
+        $o += $l[($($lv),* $(,$sv)*)] * $r[($($sv,)* $($rv),*)]
     };
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::tensor::*;
-    use std::ops::Add;
-    use std::ops::AddAssign;
+    use crate as tensor_macros;
 
     tensor!(T243: 2 x 4 x 3);
     tensor!(M43: 4 x 3 x 1);
@@ -254,6 +252,6 @@ mod tests {
             0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23,
         ]);
         let r = M43([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
-        assert_eq!(l * r, V2([121, 253]));
+        assert_eq!(l * r, V2([506, 1298]));
     }
 }

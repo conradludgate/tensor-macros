@@ -6,6 +6,8 @@ extern crate test;
 // #[macro_use]
 // pub mod functional;
 
+pub mod traits;
+
 #[macro_use]
 pub mod index;
 
@@ -17,9 +19,7 @@ pub mod dot;
 
 #[cfg(test)]
 mod tests {
-    use crate::tensor::*;
-    use std::ops::Add;
-    use std::ops::AddAssign;
+    use crate as tensor_macros;
     tensor!(T243: 2 x 4 x 3);
     tensor!(M43: 4 x 3 x 1);
     tensor!(V2: 2 x 1);
@@ -35,7 +35,7 @@ mod tests {
         ];
         let r: [f64; 12] = [0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0];
 
-        assert_eq!(T243(l) * M43(r), V2([121.0, 253.0]));
+        assert_eq!(T243(l) * M43(r), V2([506.0, 1298.0]));
 
         let mut o = V2::<f64>::new();
 
@@ -44,7 +44,7 @@ mod tests {
                 o += black_box(T243(l) * M43(r));
             }
 
-            assert_eq!(o, V2([100.0 * 121.0, 100.0 * 253.0]));
+            assert_eq!(o, V2([100.0 * 506.0, 100.0 * 1298.0]));
             o = V2::<f64>::new()
         });
 
