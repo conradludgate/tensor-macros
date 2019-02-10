@@ -6,6 +6,7 @@ extern crate test;
 // #[macro_use]
 // pub mod functional;
 
+pub mod defaults;
 pub mod traits;
 
 #[macro_use]
@@ -27,7 +28,7 @@ mod tests {
     tensor!(M43: 4 x 3 x 1);
     tensor!(V2: 2 x 1);
 
-    dot!(T243: 2 x 4 x 3 * M43: 4 x 3 x 1 -> V2: 2 x 1);
+    dot!(T243: 2 x 4 x 3 * M43: 4 x 3 x 1 => V2: 2 x 1);
 
     use test::{black_box, Bencher};
     #[bench]

@@ -120,7 +120,12 @@ macro_rules! make_tensor {
 			}
 		}
 
-		// // TODO: Ambiguous types
+		impl<T: tensor_macros::traits::TensorTrait> std::convert::From<T> for $name<T> {
+			fn from(t: T) -> Self {
+				$name::<T>([t; mul!($($dim),*)])
+			}
+		}
+
 		impl<T, U, V> std::ops::Add<$name<U>> for $name<T>
 			where Self: tensor_macros::traits::Tensor<Value=T>,
 			T: tensor_macros::traits::TensorTrait + std::ops::Add<U, Output=V>,
@@ -155,25 +160,90 @@ macro_rules! make_tensor {
 		    }
 		}
 
-		impl<T, U, V> std::ops::Mul<U> for $name<T>
+		// impl<T, U, V> std::ops::Mul<$name<T>> for U
+		// 	where T: tensor_macros::traits::TensorTrait,
+		// 	U: std::ops::Mul<T, Output=V> + Clone,
+		// 	V: tensor_macros::traits::TensorTrait,
+		// {
+		// 	type Output = $name<V>;
+
+		// 	fn mul(self, other: $name<T>) -> Self::Output {
+		// 		let mut data: [V; mul!($($dim),*)];
+
+		// 		unsafe {
+		// 			data = std::mem::uninitialized();
+
+		// 			for (i, elem) in (&mut data[..]).iter_mut().enumerate() {
+		// 				std::ptr::write(elem, self.clone() * other.0[i]);
+		// 		    }
+		// 		}
+
+		// 		$name::<V>(data)
+		// 	}
+		// }
+
+		// impl<T, U, V> std::ops::Mul<U> for $name<T>
+		// 	where T: tensor_macros::traits::TensorTrait + std::ops::Mul<U, Output=V>,
+		// 	V: tensor_macros::traits::TensorTrait,
+		// {
+		// 	type Output = $name<V>;
+
+		// 	fn mul(self, other: U) -> Self::Output {
+		// 		let mut data: [V; mul!($($dim),*)];
+
+		// 		unsafe {
+		// 			data = std::mem::uninitialized();
+
+		// 			for (i, elem) in (&mut data[..]).iter_mut().enumerate() {
+		// 				std::ptr::write(elem, self.0[i] * other);
+		// 		    }
+		// 		}
+
+		// 		$name::<V>(data)
+		// 	}
+		// }
+
+		impl<T, U, V> tensor_macros::traits::CwiseMul<$name<U>> for $name<T>
 			where T: tensor_macros::traits::TensorTrait + std::ops::Mul<U, Output=V>,
 			U: tensor_macros::traits::TensorTrait,
 			V: tensor_macros::traits::TensorTrait,
 		{
 			type Output = $name<V>;
 
-			fn mul(self, other: U) -> Self::Output {
+			fn cwise_mul(self, other: $name<U>) -> Self::Output {
 				let mut data: [V; mul!($($dim),*)];
 
 				unsafe {
 					data = std::mem::uninitialized();
 
 					for (i, elem) in (&mut data[..]).iter_mut().enumerate() {
-						std::ptr::write(elem, self.0[i] * other);
+						std::ptr::write(elem, self.0[i] * other.0[i]);
 				    }
 				}
 
 				$name::<V>(data)
+			}
+		}
+
+		impl<T, U> tensor_macros::traits::CwiseMulAssign<$name<U>> for $name<T>
+			where T: tensor_macros::traits::TensorTrait + std::ops::MulAssign<U>,
+			U: tensor_macros::traits::TensorTrait,
+		{
+			fn cwise_mul_assign(&mut self, other: $name<U>) {
+				for i in 0..mul!($($dim),*) {
+					self[i] *= other[i];
+				}
+			}
+		}
+
+		impl<T, U> std::ops::MulAssign<U> for $name<T>
+			where T: tensor_macros::traits::TensorTrait + std::ops::MulAssign<U>,
+			U: Clone,
+		{
+			fn mul_assign(&mut self, other: U) {
+				for i in 0..mul!($($dim),*) {
+					self[i] *= other.clone();
+				}
 			}
 		}
 

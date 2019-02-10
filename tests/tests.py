@@ -25,3 +25,4 @@ def test():
 
 t = numpy.array([i for i in range(120)]).reshape(2, 3, 4, 5)
 print(t)
+print(t.transpose())

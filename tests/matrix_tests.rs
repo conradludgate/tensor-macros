@@ -46,7 +46,7 @@ tensor!(T243: 2 x 4 x 3);
 tensor!(M43: 4 x 3 x 1);
 tensor!(V2: 2 x 1);
 
-dot!(T243: 2 x 4 x 3 * M43: 4 x 3 x 1 -> V2: 2 x 1);
+dot!(T243: 2 x 4 x 3 * M43: 4 x 3 x 1 => V2: 2 x 1);
 
 #[test]
 fn dot_test() {
@@ -62,7 +62,7 @@ tensor!(T2345: 2 x 3 x 4 x 5);
 
 #[test]
 fn debug() {
-    let t = T2345::<u8>::try_from((0u8..120).collect::<Vec<u8>>()).unwrap();
+    let t = T2345::try_from((0u8..120).collect::<Vec<u8>>()).unwrap();
     let output = "0\t1\t2\t3\t4\t
 5\t6\t7\t8\t9\t
 10\t11\t12\t13\t14\t
@@ -97,6 +97,16 @@ fn debug() {
 
 ";
 
-    // println!("{:?}", t);
     assert_eq!(format!("{:?}", t), output);
+}
+
+#[test]
+fn cwise() {
+    let l = T243::try_from((0u64..24).collect::<Vec<u64>>()).unwrap();
+    let r = T243::from(5);
+
+    assert_eq!(
+        l.cwise_mul(l.cwise_mul(r)),
+        T243::try_from((0u64..24).map(|x| x * x * 5).collect::<Vec<u64>>()).unwrap()
+    );
 }

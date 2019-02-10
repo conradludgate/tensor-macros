@@ -15,7 +15,7 @@
 /// tensor!(M43: 4 x 3 x 1);
 /// tensor!(V2: 2 x 1);
 ///
-/// dot!(T243: 2 x 4 x 3 * M43: 4 x 3 x 1 -> V2: 2 x 1);
+/// dot!(T243: 2 x 4 x 3 * M43: 4 x 3 x 1 => V2: 2 x 1);
 ///
 /// let l = T243([
 ///     0, 1, 2, 3,
@@ -36,7 +36,7 @@
 /// assert_eq!(l * r, V2([506, 1298]));
 /// ```
 macro_rules! dot {
-    ($lhs:ident: $($l_dim:literal)x+ * $rhs:ident: $($r_dim:literal)x+ -> $out:ident: $($o_dim:literal)x+) => {
+    ($lhs:ident: $($l_dim:literal)x+ * $rhs:ident: $($r_dim:literal)x+ => $out:ident: $($o_dim:literal)x+) => {
         impl<T, U, V> std::ops::Mul<$rhs<U>> for $lhs<T>
         where
             T: tensor_macros::traits::TensorTrait + std::ops::Mul<U, Output=V>,
@@ -45,15 +45,10 @@ macro_rules! dot {
         {
             type Output = $out<V>;
 
-            fn mul(self, rhs: M43<U>) -> Self::Output {
-                let mut out = $out::<V>::new();
+            fn mul(self, rhs: $rhs<U>) -> Self::Output {
+                let mut out = Self::Output::new();
 
-                // TODO:
-                // Generate Left, Shared and Right from dims
-
-                // split!(self, rhs, out; 2, 4, 3; 1; ; 3, 4; ; 1; 2;);
                 split!(self, rhs, out; $($l_dim),*; $($r_dim),*; $($o_dim),*;;;;;);
-                // make_dot!(self, rhs, out; 2; 4, 3;; ; ; );
 
                 out
             }
@@ -177,6 +172,8 @@ macro_rules! split {
         $ol1:literal $(,$ol:literal)*;
         $or1:literal $(,$or:literal)*;
         $($ld:literal),*; $($rd:literal),*;) => {
+        assert_eq!($l1, $ol1, "Bad dimensions for tensor product");
+        assert_eq!($r1, $or1, "Bad dimensions for tensor product");
         split!(~ $($i),*;
             $($l),*;
             $($r),*;
@@ -244,7 +241,7 @@ mod tests {
     tensor!(M43: 4 x 3 x 1);
     tensor!(V2: 2 x 1);
 
-    dot!(T243: 2 x 4 x 3 * M43: 4 x 3 x 1 -> V2: 2 x 1);
+    dot!(T243: 2 x 4 x 3 * M43: 4 x 3 x 1 => V2: 2 x 1);
 
     #[test]
     fn dot() {
