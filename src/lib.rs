@@ -9,6 +9,9 @@ extern crate test;
 pub mod traits;
 
 #[macro_use]
+pub mod debug;
+
+#[macro_use]
 pub mod index;
 
 #[macro_use]
@@ -29,19 +32,19 @@ mod tests {
     use test::{black_box, Bencher};
     #[bench]
     fn tensor_macros_dot_bench(b: &mut Bencher) {
-        let l: [f64; 24] = [
+        let l = T243([
             0.0f64, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0,
             15.0, 16.0, 17.0, 18.0, 19.0, 20.0, 21.0, 22.0, 23.0,
-        ];
-        let r: [f64; 12] = [0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0];
+        ]);
+        let r = M43([0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0]);
 
-        assert_eq!(T243(l) * M43(r), V2([506.0, 1298.0]));
+        assert_eq!(l * r, V2([506.0, 1298.0]));
 
         let mut o = V2::<f64>::new();
 
         b.iter(|| {
             for _i in 0..100 {
-                o += black_box(T243(l) * M43(r));
+                o += black_box(l * r);
             }
 
             assert_eq!(o, V2([100.0 * 506.0, 100.0 * 1298.0]));

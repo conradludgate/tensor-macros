@@ -16,7 +16,7 @@ macro_rules! make_index_fn {
 		}
 	};
 
-	($name:ident; $($dims:literal),*) => {
+	($name:ident; $($dims:literal),+) => {
 		impl<T: tensor_macros::traits::TensorTrait> std::ops::Index<usize> for $name<T> {
 			type Output = T;
 

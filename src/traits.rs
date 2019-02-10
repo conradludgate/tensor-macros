@@ -3,16 +3,25 @@ use std::ops::Index;
 use std::ops::IndexMut;
 
 pub trait TensorTrait:
-    PartialEq + Debug + Default + std::ops::Add + std::ops::AddAssign + std::ops::Mul + Copy
+    PartialEq + Debug + Default + std::ops::Add + std::ops::AddAssign + std::ops::Mul + Copy + Clone
 {
 }
 
 impl<T> TensorTrait for T where
-    T: PartialEq + Debug + Default + std::ops::Add + std::ops::AddAssign + std::ops::Mul + Copy
+    T: PartialEq
+        + Debug
+        + Default
+        + std::ops::Add
+        + std::ops::AddAssign
+        + std::ops::Mul
+        + Copy
+        + Clone
 {
 }
 
-pub trait Tensor: Index<usize> + IndexMut<usize> + PartialEq + Debug + Default {
+pub trait Tensor:
+    Index<usize> + IndexMut<usize> + PartialEq + Debug + Default + Copy + Clone
+{
     type Value: TensorTrait;
 
     const SIZE: usize;

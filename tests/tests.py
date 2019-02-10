@@ -19,6 +19,9 @@ def test():
     if (o != numpy.array([100 * 506.0, 100 * 1298.0])).all():
     	print("ERROR")
 
-if __name__ == '__main__':
-    import timeit
-    print(timeit.timeit("test()", setup="from __main__ import test", number=10000))
+# if __name__ == '__main__':
+#     import timeit
+#     print(timeit.timeit("test()", setup="from __main__ import test", number=10000))
+
+t = numpy.array([i for i in range(120)]).reshape(2, 3, 4, 5)
+print(t)

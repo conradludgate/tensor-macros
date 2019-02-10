@@ -48,6 +48,24 @@ macro_rules! make_tensor {
 			}
 		}
 
+		impl<T: tensor_macros::traits::TensorTrait> Copy for $name<T> { }
+
+		impl<T: tensor_macros::traits::TensorTrait> Clone for $name<T> {
+			fn clone(&self)	-> Self {
+				let mut data: [T; mul!($($dim),*)];
+
+				unsafe {
+					data = std::mem::uninitialized();
+
+					for (i, elem) in (&mut data[..]).iter_mut().enumerate() {
+						std::ptr::write(elem, self.0[i]);
+				    }
+				}
+
+				$name::<T>(data)
+			}
+		}
+
 		impl<T: tensor_macros::traits::TensorTrait> PartialEq for $name<T> {
 			fn eq(&self, other: &Self) -> bool {
 				for (p, q) in self.0.iter().zip(other.0.iter()) {
@@ -62,9 +80,7 @@ macro_rules! make_tensor {
 
 		impl<T: tensor_macros::traits::TensorTrait> std::fmt::Debug for $name<T>  {
 			fn fmt(&self, f:  &mut std::fmt::Formatter) -> std::fmt::Result {
-				for i in self.0.iter() {
-					write!(f, "{:?} ", i)?
-				}
+				debug_tensor!(f, self; $($dim),*;);
 
 				Ok(())
 			}
@@ -105,32 +121,60 @@ macro_rules! make_tensor {
 		}
 
 		// // TODO: Ambiguous types
-		// impl<T, U, UT, V, VT> std::ops::Add for $name<T>
-		// 	where T: tensor_macros::traits::TensorTrait + std::ops::Add<UT, Output=VT>,
-		// 	U: tensor_macros::traits::Tensor<UT>,
-		// 	UT: tensor_macros::traits::TensorTrait,
-		// 	V: tensor_macros::traits::Tensor<VT>,
-		// 	VT: tensor_macros::traits::TensorTrait,
-		impl<T> std::ops::Add for $name<T>
-			where T: tensor_macros::traits::TensorTrait + std::ops::Add<T, Output=T>,
+		impl<T, U, V> std::ops::Add<$name<U>> for $name<T>
+			where Self: tensor_macros::traits::Tensor<Value=T>,
+			T: tensor_macros::traits::TensorTrait + std::ops::Add<U, Output=V>,
+			U: tensor_macros::traits::TensorTrait,
+			V: tensor_macros::traits::TensorTrait,
 		{
-			type Output = Self;
+			type Output = $name<V>;
 
-			fn add(self, other: Self) -> Self::Output {
-				let mut out = Self::Output::new();
-				for i in 0..mul!($($dim),*) {
-					out[i] = self[i] + other[i];
+			fn add(self, other: $name<U>) -> Self::Output {
+				let mut data: [V; mul!($($dim),*)];
+
+				unsafe {
+					data = std::mem::uninitialized();
+
+					for (i, elem) in (&mut data[..]).iter_mut().enumerate() {
+						std::ptr::write(elem, self.0[i] + other.0[i]);
+				    }
 				}
-				out
+
+				$name::<V>(data)
 		    }
 		}
 
-		impl<T: tensor_macros::traits::TensorTrait> std::ops::AddAssign for $name<T> {
-			fn add_assign(&mut self, other: Self) {
+		impl<T, U> std::ops::AddAssign<$name<U>> for $name<T>
+			where T: tensor_macros::traits::TensorTrait + std::ops::AddAssign<U>,
+			U: tensor_macros::traits::TensorTrait,
+		{
+			fn add_assign(&mut self, other: $name<U>) {
 				for i in 0..mul!($($dim),*) {
 					self[i] += other[i];
 				}
 		    }
+		}
+
+		impl<T, U, V> std::ops::Mul<U> for $name<T>
+			where T: tensor_macros::traits::TensorTrait + std::ops::Mul<U, Output=V>,
+			U: tensor_macros::traits::TensorTrait,
+			V: tensor_macros::traits::TensorTrait,
+		{
+			type Output = $name<V>;
+
+			fn mul(self, other: U) -> Self::Output {
+				let mut data: [V; mul!($($dim),*)];
+
+				unsafe {
+					data = std::mem::uninitialized();
+
+					for (i, elem) in (&mut data[..]).iter_mut().enumerate() {
+						std::ptr::write(elem, self.0[i] * other);
+				    }
+				}
+
+				$name::<V>(data)
+			}
 		}
 
 		make_index_fn!($name; $($dim),*);
