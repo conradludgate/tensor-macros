@@ -19,6 +19,9 @@ pub mod index;
 pub mod tensor;
 
 #[macro_use]
+pub mod transpose;
+
+#[macro_use]
 pub mod dot;
 
 #[cfg(test)]

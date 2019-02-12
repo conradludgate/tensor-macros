@@ -6,8 +6,33 @@ use tensor_macros::traits::*;
 
 use std::convert::TryFrom;
 
-tensor!(T324: 3 x 2 x 4);
+tensor!(T2345: 2 x 3 x 4 x 5);
+#[test]
+fn tensor_dims() {
+    assert_eq!(T2345::<u8>::SIZE, 2 * 3 * 4 * 5);
+    assert_eq!(T2345::<u8>::NDIM, 4);
+}
 
+tensor!(M23: 2 x 3);
+#[test]
+fn matrix_dims() {
+    assert_eq!(M23::<u8>::ROWS, 2);
+    assert_eq!(M23::<u8>::COLS, 3);
+}
+
+tensor!(V4: 4);
+#[test]
+fn col_vector_size() {
+    assert_eq!(V4::<u8>::COLS, 4);
+}
+
+tensor!(V2Row: row 2);
+#[test]
+fn row_vector_size() {
+    assert_eq!(V2Row::<u8>::ROWS, 2);
+}
+
+tensor!(T324: 3 x 2 x 4);
 #[test]
 fn dims() {
     assert_eq!(T324::<u8>::dims(), vec!(3, 2, 4));
@@ -58,8 +83,6 @@ fn dot_test() {
     assert_eq!(l * r, V2([506.0, 1298.0]));
 }
 
-tensor!(T2345: 2 x 3 x 4 x 5);
-
 #[test]
 fn debug() {
     let t = T2345::try_from((0u8..120).collect::<Vec<u8>>()).unwrap();
@@ -109,4 +132,63 @@ fn cwise() {
         l.cwise_mul(l.cwise_mul(r)),
         T243::try_from((0u64..24).map(|x| x * x * 5).collect::<Vec<u64>>()).unwrap()
     );
+}
+
+transpose!(T243: 2 x 4 x 3 => T243T);
+
+#[test]
+fn index_transpose() {
+    let t = T243::try_from((0u8..24).collect::<Vec<u8>>()).unwrap();
+    assert_eq!(t[(1, 2, 2)], t.transpose()[(2, 2, 1)]);
+}
+
+#[test]
+fn debug_transpose() {
+    let t = T243::try_from((0u8..24).collect::<Vec<u8>>()).unwrap();
+    let output = "0\t1\t2\t
+3\t4\t5\t
+6\t7\t8\t
+9\t10\t11\t
+
+12\t13\t14\t
+15\t16\t17\t
+18\t19\t20\t
+21\t22\t23\t
+
+";
+
+    assert_eq!(format!("{:?}", t), output);
+
+    let u = t.transpose();
+
+    let output = "0\t12\t
+3\t15\t
+6\t18\t
+9\t21\t
+
+1\t13\t
+4\t16\t
+7\t19\t
+10\t22\t
+
+2\t14\t
+5\t17\t
+8\t20\t
+11\t23\t
+
+";
+
+    assert_eq!(format!("{:?}", u), output);
+}
+
+transpose!(M23: 2 x 3 => M32);
+tensor!(M33: 3 x 3);
+dot!(M32: 3 x 2 * M23: 2 x 3 => M33: 3 x 3);
+
+#[test]
+fn transpose_dot() {
+    let t = M23::try_from((0u8..6).collect::<Vec<u8>>()).unwrap();
+    let u = t.transpose();
+    let v = M33([9, 12, 15, 12, 17, 22, 15, 22, 29]);
+    assert_eq!(u * t, v);
 }

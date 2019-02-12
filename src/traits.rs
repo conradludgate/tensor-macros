@@ -51,7 +51,19 @@ pub trait CwiseMulAssign<Rhs: Tensor> {
     fn cwise_mul_assign(&mut self, other: Rhs);
 }
 
-pub struct TensorTranspose<T: TensorTrait, TT: Tensor<Value = T>>(TT);
+// pub struct TensorTranspose<T: TensorTrait, TT: Tensor<Value = T>>(TT);
+
+pub trait TensorTranspose<T, TT>: Tensor<Value = TT>
+where
+    T: Tensor<Value = TT>,
+    // + std::ops::Add
+    // + std::ops::AddAssign
+    // + std::ops::Mul<TT>
+    // + std::ops::MulAssign<TT>,
+    TT: TensorTrait,
+{
+    fn transpose(self) -> T;
+}
 
 pub trait Matrix {
     const ROWS: usize;

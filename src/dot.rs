@@ -72,7 +72,7 @@ macro_rules! split {
     // 2 4 3;   3 1;    ;     4; 2; 2 1;  ;
     // 2 4 3;     1;    ;   3 4;  ;   1; 2;
     // 2 4 3;      ;    ; 1 3 4;  ;    ; 2; 1
-    ($($i:ident),*;
+    ($($i:expr),*;
         $($ls:literal),*; $r:literal $(,$rs:literal)*; $o1:literal, $o2:literal $(,$os:literal)*;
         $($rr:literal),*;
         $($c:literal),*; $($or:literal),*;;) => {
@@ -83,7 +83,7 @@ macro_rules! split {
         );
     };
 
-    ($($i:ident),*;
+    ($($i:expr),*;
         $($ls:literal),*;; $o1:literal, $o2:literal $(,$os:literal)*;
         $($rr:literal),*;
         $($c:literal),*; $($or:literal),*;;) => {
@@ -94,7 +94,7 @@ macro_rules! split {
         );
     };
 
-    ($($i:ident),*;
+    ($($i:expr),*;
         $($ls:literal),*; $r:literal $(,$rs:literal)*;;
         $($rr:literal),*;
         $c1:literal $(,$c:literal)*; $or1:literal $(,$or:literal)*; $($ol:literal),*;) => {
@@ -105,7 +105,7 @@ macro_rules! split {
         );
     };
 
-    ($($i:ident),*;
+    ($($i:expr),*;
         $($ls:literal),*;;;
         $($rr:literal),*;
         $c1:literal $(,$c:literal)*; $or1:literal $(,$or:literal)*; $($ol:literal),*;) => {
@@ -116,7 +116,7 @@ macro_rules! split {
         );
     };
 
-    ($($i:ident),*;
+    ($($i:expr),*;
         $($ls:literal),*; $r:literal $(,$rs:literal)*;;
         $($rr:literal),*;
         ; $or1:literal $(,$or:literal)*; $($ol:literal),*; $($orr:literal),*) => {
@@ -127,7 +127,7 @@ macro_rules! split {
         );
     };
 
-    ($($i:ident),*;
+    ($($i:expr),*;
         $($ls:literal),*;;;
         $($rr:literal),*;
         ; $or1:literal $(,$or:literal)*; $($ol:literal),*; $($orr:literal),*) => {
@@ -138,7 +138,7 @@ macro_rules! split {
         );
     };
 
-    ($($i:ident),*;
+    ($($i:expr),*;
         $($ls:literal),*; $r:literal $(,$rs:literal)*;;
         $($rr:literal),*;
         ;; $($ol:literal),*; $($orr:literal),*) => {
@@ -149,7 +149,7 @@ macro_rules! split {
         );
     };
 
-    ($($i:ident),*;
+    ($($i:expr),*;
         $($ls:literal),*;;;
         $($rr:literal),*;
         ;; $($ol:literal),*; $($orr:literal),*) => {
@@ -166,7 +166,7 @@ macro_rules! split {
     //    4, 3 |    2, 3 |    4 |    2 | 2    |    1 |
     //       3 |       3 |      |      | 2, 4 | 2, 1 |   |
     //         |         |      |      | 2, 4 | 2, 1 | 3 |
-    (~ $($i:ident),*;
+    (~ $($i:expr),*;
         $l1:literal $(,$l:literal)*;
         $r1:literal $(,$r:literal)*;
         $ol1:literal $(,$ol:literal)*;
@@ -182,7 +182,7 @@ macro_rules! split {
             $r1 $(,$rd)*;
         );
     };
-    (~ $($i:ident),*;
+    (~ $($i:expr),*;
         $l1:literal $(,$l:literal)*;
         $r1:literal $(,$r:literal),*;
         ;;
@@ -196,7 +196,7 @@ macro_rules! split {
             $($sd,)* $l1
         );
     };
-    (~ $($i:ident),*;
+    (~ $($i:expr),*;
         ;;
         ;;
         $($ld:literal),*; $($rd:literal),*;
@@ -207,28 +207,28 @@ macro_rules! split {
 
 #[macro_export]
 macro_rules! make_dot {
-    ($l:ident, $r:ident, $o:ident; $d:literal $(,$ld:literal)*; $($sd:literal),*; $($rd:literal),*; $($lv:ident),*; $($sv:ident),*; $($rv:ident),*) => {
+    ($l:expr, $r:expr, $o:expr; $d:literal $(,$ld:literal)*; $($sd:literal),*; $($rd:literal),*; $($lv:ident),*; $($sv:ident),*; $($rv:ident),*) => {
         for i in 0..$d {
             make_dot!($l, $r, $o; $($ld),*; $($sd),*; $($rd),*; $($lv,)* i; $($sv),*; $($rv),*);
         }
     };
-    ($l:ident, $r:ident, $o:ident; ; $d:literal $(,$sd:literal)*; $($rd:literal),*; $($lv:ident),*; $($sv:ident),*; $($rv:ident),*) => {
+    ($l:expr, $r:expr, $o:expr; ; $d:literal $(,$sd:literal)*; $($rd:literal),*; $($lv:ident),*; $($sv:ident),*; $($rv:ident),*) => {
         for j in 0..$d {
             make_dot!($l, $r, $o; ; $($sd),*; $($rd),*; $($lv),*; $($sv,)* j; $($rv),*);
         }
     };
-    ($l:ident, $r:ident, $o:ident; ;; $d:literal $(,$rd:literal)*; $($lv:ident),*; $($sv:ident),*; $($rv:ident),*) => {
+    ($l:expr, $r:expr, $o:expr; ;; $d:literal $(,$rd:literal)*; $($lv:ident),*; $($sv:ident),*; $($rv:ident),*) => {
         for k in 0..$d {
             make_dot!($l, $r, $o; ;; $($rd),*; $($lv),*; $($sv),*; $($rv,)* k);
         }
     };
-    ($l:ident, $r:ident, $o:ident; ;;; $($lv:ident),+; $($sv:ident),+; $($rv:ident),*) => {
+    ($l:expr, $r:expr, $o:expr; ;;; $($lv:ident),+; $($sv:ident),+; $($rv:ident),*) => {
         $o[($($lv),* $(,$rv),*)] += $l[($($lv),* $(,$sv)*)] * $r[($($sv,)* $($rv),*)]
     };
-    ($l:ident, $r:ident, $o:ident; ;;;; $($sv:ident),+; $($rv:ident),+) => {
+    ($l:expr, $r:expr, $o:expr; ;;;; $($sv:ident),+; $($rv:ident),+) => {
         $o[($($rv),*)] += $l[($($lv,)* $($sv)*)] * $r[($($sv),* $(,$rv)*)]
     };
-    ($l:ident, $r:ident, $o:ident; ;;;; $($sv:ident),+;) => {
+    ($l:expr, $r:expr, $o:expr; ;;;; $($sv:ident),+;) => {
         $o += $l[($($lv),* $(,$sv)*)] * $r[($($sv,)* $($rv),*)]
     };
 }

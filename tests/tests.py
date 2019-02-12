@@ -23,6 +23,10 @@ def test():
 #     import timeit
 #     print(timeit.timeit("test()", setup="from __main__ import test", number=10000))
 
-t = numpy.array([i for i in range(120)]).reshape(2, 3, 4, 5)
+t = numpy.array([i for i in range(24)]).reshape(2, 4, 3)
 print(t)
 print(t.transpose())
+
+t = numpy.array([i for i in range(6)]).reshape(2, 3)
+print(t)
+print(numpy.tensordot(t.transpose(), t, axes=1))

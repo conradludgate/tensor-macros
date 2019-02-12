@@ -1,14 +1,11 @@
 [package]
 name = "tensor-macros"
-version = "0.1.7"
+version = "0.2.0"
 authors = ["Conrad Ludgate <oon@conradludgate.com>"]
 edition = "2018"
 
 description = "A compile time optimised tensor library"
 repository = "https://github.com/conradludgate/tensor-macros"
 license = "MIT"
-
-[dependencies]
-
 
 [dev-dependencies]
